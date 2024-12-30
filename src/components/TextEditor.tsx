@@ -17,7 +17,7 @@ import {
 
 interface TextEditorProps {
   item: Note
-  onChange: ({ content, title }: { content: string; title: string }) => void
+  onChange: (item: Note) => void
   onDelete: (id: number) => void
 }
 
@@ -29,7 +29,11 @@ const TextEditor = ({ item, onChange, onDelete }: TextEditorProps) => {
         <Input
           value={item.title}
           onChange={(e) =>
-            onChange({ content: item.content, title: e.target.value })
+            onChange({
+              id: item.id,
+              content: item.content,
+              title: e.target.value,
+            })
           }
           className="border-0 shadow-none"
         />
@@ -38,7 +42,7 @@ const TextEditor = ({ item, onChange, onDelete }: TextEditorProps) => {
       <Textarea
         value={item.content}
         onChange={(e) =>
-          onChange({ content: e.target.value, title: item.title })
+          onChange({ id: item.id, content: e.target.value, title: item.title })
         }
         className="w-full h-full resize-none border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
         placeholder="Start typing your note here..."

@@ -1,33 +1,11 @@
 import TextEditor from './components/TextEditor'
 import FileList from './components/FileList'
 import { items as initialItems } from './static'
-import { useState } from 'react'
-import { Note } from './types'
-import { addItem, deleteItem, updateItem } from './lib/crud'
+import useItem from './lib/use-item'
 
 function App() {
-  const [selectedItem, setSelectedItem] = useState<Note | null>(null)
-  const [items, setItems] = useState<Note[]>(initialItems)
-
-  const handleOnChange = (changedItem: Omit<Note, 'id'>) => {
-    if (!selectedItem) {
-      return
-    }
-
-    setItems(updateItem({ id: selectedItem.id, ...changedItem })(items))
-    setSelectedItem({ id: selectedItem.id, ...changedItem })
-  }
-
-  const handleOnAdd = () => {
-    const updatedItems = addItem(items)
-    setItems(updatedItems)
-    setSelectedItem([...updatedItems].pop() ?? null)
-  }
-
-  const handleOnDelete = (id: number) => {
-    setItems(deleteItem(id)(items))
-    setSelectedItem(null)
-  }
+  const { deleteItem, changeItem, addItem, selectItem, items, selectedItem } =
+    useItem(initialItems)
 
   return (
     <div className="flex h-screen bg-background">
@@ -35,16 +13,16 @@ function App() {
         <FileList
           items={items}
           selectedItem={selectedItem}
-          onSelectItem={(item) => setSelectedItem(item)}
-          onNewItem={handleOnAdd}
+          onSelectItem={(item) => selectItem(item)}
+          onNewItem={addItem}
         />
       </div>
       <div className="flex-1 flex overflow-hidden">
         {selectedItem && (
           <TextEditor
             item={selectedItem}
-            onChange={(item) => handleOnChange(item)}
-            onDelete={(id) => handleOnDelete(id)}
+            onChange={(item) => changeItem(item)}
+            onDelete={(id) => deleteItem(id)}
           />
         )}
       </div>
