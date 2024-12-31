@@ -1,4 +1,4 @@
-import TextEditor from './components/TextEditor'
+import TextEditor from './components/text-editor/TextEditor'
 import FileList from './components/FileList'
 import { items as initialItems } from './static'
 import useItem from './lib/use-item'
