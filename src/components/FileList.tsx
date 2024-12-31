@@ -5,8 +5,8 @@ import { Note } from '@/types'
 
 interface FileListProps {
   items: Note[]
-  selectedItem: Note | null
-  onSelectItem: (item: Note) => void
+  selectedItem: number | null
+  onSelectItem: (id: number) => void
   onNewItem: () => void
 }
 
@@ -30,8 +30,8 @@ const FileList = ({
             <Button
               key={key}
               className="w-full justify-start"
-              variant={selectedItem?.id === item.id ? 'secondary' : 'ghost'}
-              onClick={() => onSelectItem(item)}
+              variant={selectedItem === item.id ? 'secondary' : 'ghost'}
+              onClick={() => onSelectItem(item.id)}
             >
               <FileText />
               {item.title}

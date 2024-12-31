@@ -20,7 +20,7 @@ function App() {
       <div className="flex-1 flex overflow-hidden">
         {selectedItem && (
           <TextEditor
-            item={selectedItem}
+            item={items.find((item) => item.id === selectedItem)}
             onChange={(item) => changeItem(item)}
             onDelete={(id) => deleteItem(id)}
           />

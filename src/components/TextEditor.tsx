@@ -16,12 +16,16 @@ import {
 } from './ui/alert-dialog'
 
 interface TextEditorProps {
-  item: Note
+  item?: Note
   onChange: (item: Note) => void
   onDelete: (id: number) => void
 }
 
 const TextEditor = ({ item, onChange, onDelete }: TextEditorProps) => {
+  if (!item) {
+    return <></>
+  }
+
   return (
     <div className="flex-1 overflow-hidden">
       <div className="p-2 border-b border-border flex items-center">
