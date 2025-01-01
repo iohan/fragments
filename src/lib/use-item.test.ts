@@ -1,13 +1,20 @@
 import { renderHook, act, RenderHookResult } from '@testing-library/react'
 import { beforeEach, describe, expect, test } from 'vitest'
 import useItem from './use-item'
-import { Note } from '@/types'
+import { isFolder, isNote, Item } from '../types'
+import { findItemById } from './utils'
 
-const initialItems: Note[] = [
+const initialItems: Item[] = [
   {
     id: 1,
+    type: 'note',
     title: 'Mock',
     content: 'Mocked content',
+  },
+  {
+    id: 2,
+    type: 'folder',
+    title: 'Mocked folder',
   },
 ]
 
@@ -19,10 +26,7 @@ describe('useItem hook', () => {
     result = hook.result
   })
 
-  const findItemById = (id: number) =>
-    result.current.items.find((item) => item.id === id)
-
-  test('should update title of item by id', () => {
+  test('should update title of note/folder by id', () => {
     act(() => {
       result.current.changeItem({
         id: 1,
@@ -30,10 +34,10 @@ describe('useItem hook', () => {
       })
     })
 
-    expect(findItemById(1)?.title).toBe('Mock it')
+    expect(findItemById(1)(result.current.items)?.title).toBe('Mock it')
   })
 
-  test('should update description of item by id', () => {
+  test('should update content of note by id', () => {
     act(() => {
       result.current.changeItem({
         id: 1,
@@ -41,46 +45,68 @@ describe('useItem hook', () => {
       })
     })
 
-    expect(findItemById(1)?.content).toBe('New content')
+    const updatedItem = findItemById(1)(result.current.items)
+
+    if (!updatedItem || isFolder(updatedItem)) {
+      throw new Error('Item undefined or of wrong type')
+    }
+
+    expect(updatedItem.content).toBe('New content')
   })
 
-  test('should select an item by id', () => {
+  test('should select an note/folder by id', () => {
     act(() => {
       result.current.selectItem(1)
     })
 
-    expect(findItemById(1)?.title).toBe('Mock')
+    expect(findItemById(1)(result.current.items)?.title).toBe('Mock')
   })
 
-  test('should add a new item', () => {
+  test('should add a new note', () => {
     act(() => {
-      result.current.addItem()
+      result.current.addItem('note')
     })
 
     const newItem = [...result.current.items].pop()
-
-    expect(result.current.items.length).toBe(2)
-
-    expect(newItem).toBeDefined()
-  })
-
-  test('should delete an item by id', () => {
-    act(() => {
-      result.current.addItem()
-    })
-
-    const newItem = [...result.current.items].pop()
-    if (!newItem?.id) {
-      throw new Error('newItem is undefined')
+    if (!newItem || isFolder(newItem)) {
+      throw new Error('newItem is undefined or of wrong type')
     }
 
-    expect(result.current.items.length).toBe(2)
+    expect(result.current.items.length).toBe(3)
+    expect(newItem.type).toBe('note')
+  })
+
+  test('should add a new folder', () => {
+    act(() => {
+      result.current.addItem('folder')
+    })
+
+    const newItem = [...result.current.items].pop()
+    if (!newItem || isNote(newItem)) {
+      throw new Error('newItem is undefined or of wrong type')
+    }
+
+    expect(result.current.items.length).toBe(3)
+    expect(newItem.type).toBe('folder')
+  })
+
+  test('should delete a note/folder by id', () => {
+    act(() => {
+      result.current.addItem('note')
+    })
+
+    const newItem = [...result.current.items].pop()
+    if (!newItem || isFolder(newItem)) {
+      throw new Error('newItem is undefined or of wrong type')
+    }
+
+    expect(result.current.items.length).toBe(3)
 
     act(() => {
       result.current.deleteItem(1)
     })
 
-    expect(result.current.items.length).toBe(1)
+    expect(result.current.items.length).toBe(2)
     expect(findItemById(1)).toBeUndefined()
   })
 })

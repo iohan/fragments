@@ -1,30 +1,50 @@
-import { Note } from '@/types'
+import { isNote, Item } from '../types'
 import { useState } from 'react'
 
-const useItem = (initialItems: Note[]) => {
+const useItem = (initialItems: Item[]) => {
   const [selectedItem, setSelectedItem] = useState<number | null>(null)
-  const [items, setItems] = useState<Note[]>(initialItems)
+  const [items, setItems] = useState<Item[]>(initialItems)
 
-  const changeItem = (changedItem: { id: number } & Partial<Note>) => {
-    if (!changedItem) {
+  const changeItem = (item: { id: number } & Partial<Item>) => {
+    if (!item) {
       return
     }
 
+    if (item.title) {
+      updateTitleOfItem(item.id, item.title)
+    }
+
+    if (isNote(item) && item.content) {
+      updateContentOfNote(item.id, item.content)
+    }
+  }
+
+  const updateTitleOfItem = (id: number, title: string) => {
     setItems((prev) =>
-      prev.map((item) =>
-        item.id === changedItem.id
-          ? {
-              ...item,
-              title: changedItem.title || item.title,
-              content: changedItem.content || item.content,
-            }
-          : item,
-      ),
+      prev.map((item) => (item.id === id ? { ...item, title } : item)),
     )
   }
 
-  const addItem = () => {
-    const newItem = { id: new Date().getTime(), content: '', title: 'New note' }
+  const updateContentOfNote = (id: number, content: string) =>
+    setItems((prev) =>
+      prev.map((item) =>
+        item.id === id && isNote(item) ? { ...item, content } : item,
+      ),
+    )
+
+  const addItem = (type: 'folder' | 'note') => {
+    let newItem: Item
+    if (type === 'note') {
+      newItem = {
+        type,
+        id: new Date().getTime(),
+        content: '',
+        title: 'New note',
+      }
+    } else {
+      newItem = { type, id: new Date().getTime(), title: 'New folder' }
+    }
+
     setItems((prev) => [...prev, newItem])
     setSelectedItem(newItem.id)
   }

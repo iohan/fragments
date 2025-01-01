@@ -2,10 +2,14 @@ import TextEditor from './components/text-editor/TextEditor'
 import FileList from './components/FileList'
 import { items as initialItems } from './static'
 import useItem from './lib/use-item'
+import { isNote } from './types'
+import { findItemById } from './lib/utils'
 
 function App() {
   const { deleteItem, changeItem, addItem, selectItem, items, selectedItem } =
     useItem(initialItems)
+
+  const selectedItemById = findItemById(selectedItem)(items)
 
   return (
     <div className="flex h-screen bg-background">
@@ -14,13 +18,14 @@ function App() {
           items={items}
           selectedItem={selectedItem}
           onSelectItem={(item) => selectItem(item)}
-          onNewItem={addItem}
+          onNewNote={() => addItem('note')}
+          onNewFolder={() => addItem('folder')}
         />
       </div>
       <div className="flex-1 flex overflow-hidden">
-        {selectedItem && (
+        {selectedItemById && isNote(selectedItemById) && (
           <TextEditor
-            item={items.find((item) => item.id === selectedItem)}
+            item={selectedItemById}
             onChange={(item) => changeItem(item)}
             onDelete={(id) => deleteItem(id)}
           />
