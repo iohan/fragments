@@ -1,8 +1,8 @@
 import { renderHook, act, RenderHookResult } from '@testing-library/react'
 import { beforeEach, describe, expect, test } from 'vitest'
-import useItem from './use-item'
-import { isFolder, isNote, Item } from '../types'
-import { findItemById } from './utils'
+import useItem from '../use-item'
+import { isFolder, isNote, Item } from '../../types'
+import { findItemById } from '../utils'
 
 const initialItems: Item[] = [
   {
