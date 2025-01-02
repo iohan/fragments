@@ -1,4 +1,4 @@
-import { isFolder, isNote, Item } from '../types'
+import { isNote, Item } from '../types'
 import { useState } from 'react'
 import { recurseMap } from './recurse-map'
 import { recurseFind } from './recurse-find'
@@ -49,10 +49,15 @@ const useItem = (initialItems: Item[]) => {
       newItem = { type, id: new Date().getTime(), title: 'New folder' }
     }
 
-    const selectedFolder = recurseFind<Item>(
-      'children',
-      (x) => x.id === selectedItem && isFolder(x),
-    )(items)
+    const selectedFolder = recurseFind<Item>('children', (item, parent) => {
+      if (item.id === selectedItem) {
+        if (isNote(item)) {
+          return parent
+        } else {
+          return item
+        }
+      }
+    })(items)
 
     if (selectedFolder) {
       setItems((prev) =>

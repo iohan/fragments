@@ -9,5 +9,9 @@ export function cn(...inputs: ClassValue[]) {
 
 export const findItemById = (id: number | null) => (items: Item[]) =>
   id
-    ? recurseFind<Item>('children', (item) => item.id === id)(items)
+    ? recurseFind<Item>('children', (item) => {
+        if (item.id === id) {
+          return item
+        }
+      })(items)
     : undefined
