@@ -1,10 +1,9 @@
 import TextEditor from './components/text-editor/TextEditor'
-import FileList from './components/FileList'
+import FileList from './components/file-list/FileList'
 import { items as initialItems } from './static'
 import useItem from './lib/use-item'
 import { isNote } from './types'
 import { findItemById } from './lib/utils'
-import { recurseMap } from './lib/recurse-map'
 
 function App() {
   const { deleteItem, changeItem, addItem, selectItem, items, selectedItem } =
@@ -18,9 +17,11 @@ function App() {
         <FileList
           items={items}
           selectedItem={selectedItem}
-          onSelectItem={(item) => selectItem(item)}
-          onNewNote={() => addItem('note')}
-          onNewFolder={() => addItem('folder')}
+          fn={{
+            onSelect: (item) => selectItem(item),
+            onNewNote: () => addItem('note'),
+            onNewFolder: () => addItem('folder'),
+          }}
         />
       </div>
       <div className="flex-1 flex overflow-hidden">
