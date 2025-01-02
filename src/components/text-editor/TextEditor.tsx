@@ -23,6 +23,7 @@ const TextEditor = ({ item, onChange, onDelete }: TextEditorProps) => {
           onChange={(e) =>
             onChange({
               id: item.id,
+              type: 'note',
               content: item.content,
               title: e.target.value,
             })
@@ -34,7 +35,12 @@ const TextEditor = ({ item, onChange, onDelete }: TextEditorProps) => {
       <Textarea
         value={item.content}
         onChange={(e) =>
-          onChange({ id: item.id, content: e.target.value, title: item.title })
+          onChange({
+            id: item.id,
+            type: 'note',
+            content: e.target.value,
+            title: item.title,
+          })
         }
         className="w-full h-full resize-none border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
         placeholder="Start typing your note here..."
