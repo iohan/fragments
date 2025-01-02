@@ -24,7 +24,12 @@ const FileTreeNode = (props: FileNodeProps) => {
         onClick={() => props.select.set(props.item.id)}
       >
         <FileText size={18} className="mr-2" />
-        <span>{props.item.title}</span>
+        <span
+          className="w-[180px] overflow-hidden whitespace-nowrap text-ellipsis text-left"
+          title={props.item.title}
+        >
+          {props.item.title}
+        </span>
       </button>
     )
   }
@@ -44,7 +49,12 @@ const FileTreeNode = (props: FileNodeProps) => {
               onClick={() => props.select.set(props.item.id)}
             >
               <Folder size={18} className="mr-2" />
-              <span>{props.item.title}</span>
+              <span
+                className="w-[180px] overflow-hidden whitespace-nowrap text-ellipsis text-left"
+                title={props.item.title}
+              >
+                {props.item.title}
+              </span>
             </button>
           </CollapsibleTrigger>
         </div>
