@@ -7,5 +7,6 @@ export interface FileTreeProps {
 }
 export interface FileNodeProps {
   item: Item
+  index: number
   select: Select
 }

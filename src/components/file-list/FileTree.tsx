@@ -8,37 +8,30 @@ import {
   CollapsibleTrigger,
 } from '../ui/collapsible'
 import { FileNodeProps, FileTreeProps } from './types'
+import {
+  Draggable,
+  DraggableProvided,
+  Droppable,
+  DroppableProvided,
+} from '@hello-pangea/dnd'
 
 const FileTreeNode = (props: FileNodeProps) => {
   const [isOpen, setIsOpen] = useState(false)
 
-  if (isNote(props.item)) {
-    return (
-      <button
-        className={cn(
-          'rounded-sm flex w-full px-3 py-1 items-center',
-          'hover:bg-accent hover:text-accent-foreground',
-          props.select.item === props.item.id &&
-            'bg-accent text-accent-foreground',
-        )}
-        onClick={() => props.select.set(props.item.id)}
-      >
-        <FileText size={18} className="mr-2" />
-        <span
-          className="w-[180px] overflow-hidden whitespace-nowrap text-ellipsis text-left"
-          title={props.item.title}
-        >
-          {props.item.title}
-        </span>
-      </button>
-    )
-  }
-
   return (
-    <div className={cn(isOpen && 'mb-3')}>
-      <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-        <div className="flex items-center space-x-2 py-1">
-          <CollapsibleTrigger asChild>
+    <Draggable
+      draggableId={String(props.item.id)}
+      index={props.index}
+      key={props.item.id}
+    >
+      {(provided: DraggableProvided) => (
+        <div
+          ref={provided.innerRef}
+          {...provided.draggableProps}
+          {...provided.dragHandleProps}
+          className={cn(isOpen && 'mb-3')}
+        >
+          {isNote(props.item) ? (
             <button
               className={cn(
                 'rounded-sm flex w-full px-3 py-1 items-center',
@@ -48,7 +41,7 @@ const FileTreeNode = (props: FileNodeProps) => {
               )}
               onClick={() => props.select.set(props.item.id)}
             >
-              <Folder size={18} className="mr-2" />
+              <FileText size={18} className="mr-2" />
               <span
                 className="w-[180px] overflow-hidden whitespace-nowrap text-ellipsis text-left"
                 title={props.item.title}
@@ -56,31 +49,75 @@ const FileTreeNode = (props: FileNodeProps) => {
                 {props.item.title}
               </span>
             </button>
-          </CollapsibleTrigger>
+          ) : (
+            <div className={cn(isOpen && 'mb-3')}>
+              <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+                <div className="flex items-center space-x-2 py-1">
+                  <CollapsibleTrigger asChild>
+                    <button
+                      className={cn(
+                        'rounded-sm flex w-full px-3 py-1 items-center',
+                        'hover:bg-accent hover:text-accent-foreground',
+                        props.select.item === props.item.id &&
+                          'bg-accent text-accent-foreground',
+                      )}
+                      onClick={() => props.select.set(props.item.id)}
+                    >
+                      <Folder size={18} className="mr-2" />
+                      <span
+                        className="w-[180px] overflow-hidden whitespace-nowrap text-ellipsis text-left"
+                        title={props.item.title}
+                      >
+                        {props.item.title}
+                      </span>
+                    </button>
+                  </CollapsibleTrigger>
+                </div>
+                <CollapsibleContent>
+                  <Droppable droppableId={String(props.item.id)} type="FILE">
+                    {(dropProvided: DroppableProvided) => (
+                      <div
+                        ref={dropProvided.innerRef}
+                        {...dropProvided.droppableProps}
+                        className="ml-5 border-l border-border pl-2"
+                      >
+                        {props.item.children?.map((child, childIndex) => (
+                          <FileTreeNode
+                            select={props.select}
+                            key={child.id}
+                            item={child}
+                            index={childIndex}
+                          />
+                        ))}
+                      </div>
+                    )}
+                  </Droppable>
+                </CollapsibleContent>
+              </Collapsible>
+            </div>
+          )}
         </div>
-        <CollapsibleContent>
-          <div className="ml-5 border-l border-border pl-2">
-            {props.item.children?.map((child) => (
-              <FileTreeNode
-                select={props.select}
-                key={`${child.id}`}
-                item={child}
-              />
-            ))}
-          </div>
-        </CollapsibleContent>
-      </Collapsible>
-    </div>
+      )}
+    </Draggable>
   )
 }
 
 const FileTree = (props: FileTreeProps) => {
   return (
-    <div>
-      {props.items.map((item) => (
-        <FileTreeNode select={props.select} key={`${item.id}`} item={item} />
-      ))}
-    </div>
+    <Droppable droppableId="ROOT" type="FILE">
+      {(provided) => (
+        <div ref={provided.innerRef} {...provided.droppableProps}>
+          {props.items.map((item, index) => (
+            <FileTreeNode
+              key={item.id}
+              item={item}
+              index={index}
+              select={props.select}
+            />
+          ))}
+        </div>
+      )}
+    </Droppable>
   )
 }
 
