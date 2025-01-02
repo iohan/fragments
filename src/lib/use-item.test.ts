@@ -15,6 +15,14 @@ const initialItems: Item[] = [
     id: 2,
     type: 'folder',
     title: 'Mocked folder',
+    children: [
+      {
+        id: 3,
+        type: 'note',
+        title: 'Sub note',
+        content: 'Mocked sub content',
+      },
+    ],
   },
 ]
 
@@ -29,23 +37,23 @@ describe('useItem hook', () => {
   test('should update title of note/folder by id', () => {
     act(() => {
       result.current.changeItem({
-        id: 1,
+        id: 3,
         title: 'Mock it',
       })
     })
 
-    expect(findItemById(1)(result.current.items)?.title).toBe('Mock it')
+    expect(findItemById(3)(result.current.items)?.title).toBe('Mock it')
   })
 
   test('should update content of note by id', () => {
     act(() => {
       result.current.changeItem({
-        id: 1,
+        id: 3,
         content: 'New content',
       })
     })
 
-    const updatedItem = findItemById(1)(result.current.items)
+    const updatedItem = findItemById(3)(result.current.items)
 
     if (!updatedItem || isFolder(updatedItem)) {
       throw new Error('Item undefined or of wrong type')
@@ -56,10 +64,10 @@ describe('useItem hook', () => {
 
   test('should select an note/folder by id', () => {
     act(() => {
-      result.current.selectItem(1)
+      result.current.selectItem(3)
     })
 
-    expect(findItemById(1)(result.current.items)?.title).toBe('Mock')
+    expect(findItemById(3)(result.current.items)?.title).toBe('Sub note')
   })
 
   test('should add a new note', () => {
@@ -74,6 +82,19 @@ describe('useItem hook', () => {
 
     expect(result.current.items.length).toBe(3)
     expect(newItem.type).toBe('note')
+  })
+
+  test('should add a new sub note', () => {
+    act(() => {
+      result.current.selectItem(2)
+    })
+    act(() => {
+      result.current.addItem('note')
+    })
+
+    const selectedFolder = findItemById(2)(result.current.items)
+
+    expect(selectedFolder?.children?.length).toBe(2)
   })
 
   test('should add a new folder', () => {
@@ -107,6 +128,6 @@ describe('useItem hook', () => {
     })
 
     expect(result.current.items.length).toBe(2)
-    expect(findItemById(1)).toBeUndefined()
+    expect(findItemById(1)(result.current.items)).toBeUndefined()
   })
 })

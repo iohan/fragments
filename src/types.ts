@@ -11,7 +11,7 @@ export interface Folder {
   title: string
 }
 
-export type Item = Note | Folder
+export type Item = (Note | Folder) & { children?: Item[] }
 
 export const isNote = (item: Partial<Note> | Partial<Folder>): item is Note =>
   'content' in item

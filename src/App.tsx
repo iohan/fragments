@@ -4,6 +4,7 @@ import { items as initialItems } from './static'
 import useItem from './lib/use-item'
 import { isNote } from './types'
 import { findItemById } from './lib/utils'
+import { recurseMap } from './lib/recurse-map'
 
 function App() {
   const { deleteItem, changeItem, addItem, selectItem, items, selectedItem } =

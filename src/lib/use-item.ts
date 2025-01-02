@@ -1,35 +1,39 @@
-import { isNote, Item } from '../types'
+import { isFolder, isNote, Item } from '../types'
 import { useState } from 'react'
+import { recurseMap } from './recurse-map'
+import { recurseFind } from './recurse-find'
+import { recurseDelete } from './recurse-delete'
 
 const useItem = (initialItems: Item[]) => {
   const [selectedItem, setSelectedItem] = useState<number | null>(null)
   const [items, setItems] = useState<Item[]>(initialItems)
 
   const changeItem = (item: { id: number } & Partial<Item>) => {
-    if (!item) {
-      return
-    }
-
-    if (item.title) {
+    if (item && item.title) {
       updateTitleOfItem(item.id, item.title)
     }
 
-    if (isNote(item) && item.content) {
+    if (item && isNote(item) && item.content) {
       updateContentOfNote(item.id, item.content)
     }
   }
 
-  const updateTitleOfItem = (id: number, title: string) => {
+  const updateTitleOfItem = (id: number, title: string) =>
     setItems((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, title } : item)),
+      recurseMap<Item>('children', (item) => {
+        if (item.id === id) {
+          return { ...item, title }
+        }
+      })(prev),
     )
-  }
 
   const updateContentOfNote = (id: number, content: string) =>
     setItems((prev) =>
-      prev.map((item) =>
-        item.id === id && isNote(item) ? { ...item, content } : item,
-      ),
+      recurseMap<Item>('children', (item) => {
+        if (item.id === id && isNote(item)) {
+          return { ...item, content }
+        }
+      })(prev),
     )
 
   const addItem = (type: 'folder' | 'note') => {
@@ -45,12 +49,30 @@ const useItem = (initialItems: Item[]) => {
       newItem = { type, id: new Date().getTime(), title: 'New folder' }
     }
 
-    setItems((prev) => [...prev, newItem])
+    const selectedFolder = recurseFind<Item>(
+      'children',
+      (x) => x.id === selectedItem && isFolder(x),
+    )(items)
+
+    if (selectedFolder) {
+      setItems((prev) =>
+        recurseMap<Item>('children', (item) => {
+          if (item.id === selectedFolder.id) {
+            return { ...item, children: [...(item.children ?? []), newItem] }
+          }
+        })(prev),
+      )
+    } else {
+      setItems((prev) => [...prev, newItem])
+    }
+
     setSelectedItem(newItem.id)
   }
 
   const deleteItem = (id: number) => {
-    setItems((prev) => prev.filter((item) => item.id !== id))
+    setItems((prev) =>
+      recurseDelete<Item>('children', (item) => item.id === id)(prev),
+    )
     setSelectedItem(null)
   }
 
